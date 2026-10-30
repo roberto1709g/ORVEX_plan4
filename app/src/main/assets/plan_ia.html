@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#070b14">
+<title>ORVEX | Plan de Inteligencia Artificial</title>
+<style>
+:root{color-scheme:dark;--cyan:#00e5ff;--text:#e6f6ff;--muted:#85a6bc;--panel:#0a1422}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% 8%,#102a3b 0,#070b14 48%);font-family:Arial,Helvetica,sans-serif;color:var(--text);display:flex;align-items:center;justify-content:center;padding:24px}
+.wrap{width:100%;max-width:440px}
+.brand{text-align:center;margin-bottom:26px}
+.brand .eyebrow{font-size:11px;letter-spacing:3px;color:var(--cyan)}
+.brand h1{font-size:42px;font-weight:300;letter-spacing:10px;margin:10px 0;text-shadow:0 0 20px #00e5ff55}
+.brand p{font-size:13px;color:var(--muted);letter-spacing:1px;margin:0}
+.card{background:linear-gradient(160deg,#101f30,#091321);border:1px solid #1b5268;border-radius:22px;padding:27px 22px;box-shadow:0 18px 55px #0008}
+.icon{width:62px;height:62px;border:1px solid #00e5ff88;border-radius:18px;display:grid;place-items:center;margin:0 auto 18px;color:var(--cyan);font-size:28px;box-shadow:0 0 25px #00e5ff18}
+h2{text-align:center;font-size:20px;margin:0 0 9px;letter-spacing:1px}
+.description{text-align:center;color:var(--muted);font-size:14px;line-height:1.55;margin:0 0 25px}
+label{display:block;font-size:11px;letter-spacing:1.6px;color:var(--cyan);font-weight:bold;margin:0 0 10px}
+input{width:100%;height:62px;border:1px solid #27516a;border-radius:13px;background:#060e19;color:white;text-align:center;font-size:28px;letter-spacing:13px;padding:0 12px 0 25px;outline:none}
+input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px #00e5ff1c}
+button{width:100%;border:0;border-radius:12px;min-height:52px;font-weight:bold;letter-spacing:1px;font-size:13px;cursor:pointer}
+.primary{margin-top:18px;background:var(--cyan);color:#03131b;box-shadow:0 5px 18px #00e5ff25}
+.secondary{margin-top:11px;background:#14283a;color:var(--text);border:1px solid #29475d}
+button:disabled{opacity:.55;cursor:wait}
+#feedback{min-height:42px;margin:14px 0 0;text-align:center;font-size:13px;line-height:1.45;color:var(--muted)}
+#feedback.error{color:#ff8b9a}#feedback.success{color:#72edb0}
+.foot{text-align:center;color:#58748a;font-size:10px;letter-spacing:1px;margin-top:20px}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="brand">
+    <div class="eyebrow">ASISTENCIA INTELIGENTE</div>
+    <h1>ORVEX</h1>
+    <p>VALIDACIÓN DE ACCESO</p>
+  </header>
+  <section class="card">
+    <div class="icon">✧</div>
+    <h2 id="featureTitle">VALIDACIÓN DE ACCESO</h2>
+    <p class="description">Ingresa el código de activación de 6 dígitos para habilitar la función seleccionada en ORVEX.</p>
+    <label for="code">CÓDIGO DE ACTIVACIÓN</label>
+    <input id="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••" aria-label="Código numérico de seis dígitos">
+    <button id="validate" class="primary" type="button">VALIDAR CÓDIGO</button>
+    <p id="feedback" role="status" aria-live="polite"></p>
+    <button class="secondary" type="button" onclick="goBack()">VOLVER</button>
+  </section>
+  <footer class="foot">FUNDACIÓN QUINTI · QUITO, ECUADOR</footer>
+</main>
+<script>
+const featureTitle=document.getElementById('featureTitle');
+if(window.OrvexPlan&&window.OrvexPlan.getFeatureName){
+  featureTitle.textContent=window.OrvexPlan.getFeatureName();
+}
+const codeInput=document.getElementById('code');
+const validateButton=document.getElementById('validate');
+const feedback=document.getElementById('feedback');
+codeInput.addEventListener('input',()=>{codeInput.value=codeInput.value.replace(/\D/g,'').slice(0,6);});
+function validateCode(){
+  const code=codeInput.value.trim();
+  feedback.className='';
+  if(!/^\d{6}$/.test(code)){feedback.textContent='Ingresa un código numérico de exactamente 6 dígitos.';feedback.className='error';return;}
+  validateButton.disabled=true;validateButton.textContent='VALIDANDO...';
+  feedback.textContent='Estamos verificando tu código. Espera un momento.';
+  if(window.OrvexPlan&&window.OrvexPlan.validateCode){window.OrvexPlan.validateCode(code);}
+  else{onPlanResult(false,'No se pudo iniciar la validación. Cierra y vuelve a abrir esta pantalla.');}
+}
+function onPlanResult(valid,message){
+  feedback.textContent=message;
+  feedback.className=valid?'success':'error';
+  validateButton.disabled=false;validateButton.textContent='VALIDAR CÓDIGO';
+  if(valid){codeInput.disabled=true;validateButton.disabled=true;}
+}
+function goBack(){if(window.OrvexPlan&&window.OrvexPlan.goBack){window.OrvexPlan.goBack();}}
+validateButton.addEventListener('click',validateCode);
+codeInput.addEventListener('keydown',e=>{if(e.key==='Enter')validateCode();});
+</script>
+</body>
+</html>
